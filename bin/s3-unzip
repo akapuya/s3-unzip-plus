@@ -1,0 +1,17 @@
+"use strict";
+
+var command = require("commander");
+var pkg = require("../package.json");
+var s3Unzip = require("../index.js");
+
+command
+  .description(pkg.description)
+  .version(pkg.version);
+
+command
+  .usage("[options] <bucket name> <filename>")
+  .option("-b --bucket <name>", "S3 bucket name")
+  .option("-f --file <name>", "Filename of the zip file (including extension)")
+  .parse(process.argv);
+
+var s = new s3Unzip(command);

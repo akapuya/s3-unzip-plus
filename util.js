@@ -1,14 +1,13 @@
 "use strict";
 
-const AWS = require("aws-sdk");
+var AWS = require("aws-sdk");
 var s3 = new AWS.S3();
-const AdmZip = require("adm-zip");
-const fs = require("fs");
-const dateTime = require("date-time");
-const md5 = require("md5");
+var AdmZip = require("adm-zip");
+var fs = require("fs");
+var dateTime = require("date-time");
+var md5 = require("md5");
 
-module.exports.handler = (event, context, callback) => {
-  var command = { bucket: event.bucket, file: event.file };
+module.exports.decompress = function(/*String*/command) {
 
   if (!command.bucket || !command.file) {
     console.log("Error: missing either bucket name or full filename!");
@@ -63,5 +62,4 @@ module.exports.handler = (event, context, callback) => {
       }
     }
   );
-
-};
+}

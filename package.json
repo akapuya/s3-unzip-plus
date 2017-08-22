@@ -2,9 +2,16 @@
   "name": "s3-unzip",
   "version": "0.1.0",
   "description": "Utility for unzipping a compressed (application/zip) file from a S3 bucket's root directory back to the same bucket.",
-  "main": "cmd.js",
+  "main": "s3-unzip.js",
+  "bin": {
+    "s3-unzip": "bin/s3-unzip"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://syardumian-chc@bitbucket.org/copperhill/s3-unzip.git"
   },
   "author": "Steve Yardumian",
   "license": "MIT",
