@@ -27,10 +27,12 @@ Include like most libraries:
 
 `var s3Unzip = require("s3-unzip");`
 
-`var s = new s3Unzip({
-    bucket: "test-bucket-in-s3",
-    file: "Companies.zip"
-  });`
+Run the decompression for the file in the specified bucket:
+
+>var s = new s3Unzip({
+>    bucket: "test-bucket-in-s3",
+>    file: "Companies.zip"
+>  });
 
 #### Options ####
 
@@ -56,10 +58,9 @@ Create an AWS Lambda function, name it, and zip all files from this package to u
 #### Test Options ####
 
 Test JSON:
-`{
-    "command":{
-        "bucket": "test-bucket-in-s3",
-        "file": "Companies.zip"
-    }
-}
-`
+>{
+>    "command":{
+>        "bucket": "test-bucket-in-s3",
+>        "file": "Companies.zip"
+>    }
+>}
