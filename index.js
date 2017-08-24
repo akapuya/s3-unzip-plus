@@ -24,13 +24,13 @@ SOFTWARE.
 var Utils = require("./util");
 
 function s3Unzip(command, cb){
-  cb = cb || (err, success) => {};
+  if (cb === undefined) {cb = function(err, success) {};}
   Utils.decompress(command, cb);
 }
 
 module.exports = s3Unzip;
 
 module.exports.handler = function(event, context, callback) {
-  callback = callback || (err, success) => {};
+  if (callback === undefined) {callback = function(err, success) {};}
   Utils.decompress(event.command, callback);
 };
