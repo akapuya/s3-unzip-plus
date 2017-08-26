@@ -28,67 +28,102 @@ var fs = require("fs");
 var dateTime = require("date-time");
 var md5 = require("md5");
 
-module.exports.decompress = function(/*String*/command, /*Function*/ cb) {
+var decompress = function(/*String*/command, /*Function*/ cb) {
 
   if (!command.bucket || !command.file) {
     console.log("Error: missing either bucket name or full filename!");
     process.exit(1);
   }
 
-  //TODO:check that unzipped folder doesn't already exist
+  var filenamePartsArray = command.file.split(".");
+  var foldername = filenamePartsArray[0];
 
   s3.getObject(
     {
       Bucket: command.bucket,
-      Key: command.file
-    }, function(err, data) {
-      if (err) {
-       	console.log(err, err.stack);
-       	process.exit(1);
+      Key: foldername+"/"
+    }, function(err1, data1) {
+      if (data1) {
+        //TODO: if called via command line, ask here to overwrite the data and prompt for response
+        console.log("Folder '"+foldername+"' already exists!");
       }
-      else {
-       	console.log("Zip file found in S3 bucket!");
 
-        //check that file in that location is a zip, otherwise throw error and exit
-       	if (data.ContentType !== "application/zip") {
-       		console.log("Error: file is not of type zip. Please select a valid file (filename.zip).");
-       		process.exit(1);
-       	}
+      s3.getObject(
+        {
+          Bucket: command.bucket,
+          Key: command.file
+        }, function(err2, data2) {
+          if (err2) {
+           	cb(new Error("File Error: "+err2.message));
+           	process.exit(1);
+          }
+          else {
+           	console.log("Zip file '"+command.file+"' found in S3 bucket!");
 
-       	 //check that file is < 20mb, otherwise throw error and exit
-       	if (data.ContentLength > 20971520) {
-       		console.log("Error: the file selected is > 20 MB. Please select a valid file that is < 20 MB.");
-       		process.exit(1);
-        }
-
-        //write the zip file locally in a tmp dir
-        var tmpZipFilename = md5(dateTime());
-        fs.writeFileSync("/tmp/"+tmpZipFilename+".zip", data.Body);
-
-        //find all files in the zip and the count of them
-        var zip = new AdmZip("/tmp/"+tmpZipFilename+".zip");
-      	var zipEntries = zip.getEntries();
-        var zipEntryCount = Object.keys(zipEntries).length;
-
-        if (zipEntryCount === 0){
-          cb(new Error("Error: the zip file was empty!"));
-          process.exit(1);
-        }
-
-        //for each file in the zip, decompress and upload it to S3; once all are uploaded, delete the tmp zip
-        var counter = 0;
-      	zipEntries.forEach(function(zipEntry) {
-          s3.upload({ Bucket: command.bucket, Key: zipEntry.entryName, Body: zipEntry.getData() }, function(err, data) {
-            counter++;
-            if (err) console.log(err);
-            else console.log("File decompressed to S3: "+data.Location);
-            if (zipEntryCount === counter){
-              fs.unlinkSync("/tmp/"+tmpZipFilename+".zip");
-              cb(null, "Success!");
+            //check that file in that location is a zip content type, otherwise throw error and exit
+           	if (data2.ContentType !== "application/zip") {
+           		cb(new Error("Error: file is not of type zip. Please select a valid file (filename.zip)."));
+           		process.exit(1);
+           	}
+    /*
+            //check that file is < 20mb, otherwise throw error and exit
+           	if (data2.ContentLength > 20971520) {
+           		console.log("Error: the file selected is > 20 MB. Please select a valid file that is < 20 MB.");
+           		process.exit(1);
             }
-          });
-      	});
-      }
+    */
+            //write the zip file locally in a tmp dir
+            var tmpZipFilename = md5(dateTime());
+            fs.writeFileSync("/tmp/"+tmpZipFilename+".zip", data2.Body);
+
+            //find all files in the zip and the count of them
+            var zip = new AdmZip("/tmp/"+tmpZipFilename+".zip");
+          	var zipEntries = zip.getEntries();
+            var zipEntryCount = Object.keys(zipEntries).length;
+
+            //if no files found in the zip
+            if (zipEntryCount === 0){
+              cb(new Error("Error: the zip file was empty!"));
+              process.exit(1);
+            }
+
+            //for each file in the zip, decompress and upload it to S3; once all are uploaded, delete the tmp zip and zip on S3
+            var counter = 0;
+          	zipEntries.forEach(function(zipEntry) {
+              s3.upload({ Bucket: command.bucket, Key: zipEntry.entryName, Body: zipEntry.getData() }, function(err3, data3) {
+                counter++;
+
+                if (err3) {
+                  cb(new Error(err3));
+                  process.exit(1);
+                }
+                else console.log("File decompressed to S3: "+data3.Location);
+
+                //if all files are unzipped...
+                if (zipEntryCount === counter){
+                  //delete the tmp (local) zip file
+                  fs.unlinkSync("/tmp/"+tmpZipFilename+".zip");
+                  console.log("Local temp zip file deleted.");
+                  //delete the zip file up on S3
+                  s3.deleteObject({Bucket: command.bucket, Key: command.file}, function(err4, data4) {
+                    if (err4) {
+                      cb(new Error(err4, err4.stack));
+                      process.exit(1);
+                    }
+                    else console.log("S3 file '"+command.file+"' deleted.");
+                    cb(null, "Success!");
+                  });
+                }
+
+              });
+          	});
+          }
+        }
+      );
     }
   );
+}
+
+module.exports = {
+  decompress: decompress
 }

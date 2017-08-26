@@ -10,13 +10,12 @@ A simple library to unzip an archive file in a S3 bucket to its root folder.
 ### Restrictions ###
 
 - The module only supports the input zip file MIME type of 'application/zip'
-- Archives of < 20MB are able to be processed. I may raise the limit in the future, but this is a practical limit for processing and time.
 
 ### Command Line Usage ###
 
 `s3-unzip -b test-bucket-in-s3 -f Companies.zip`
 
-#### Options ####
+#### Required Options ####
 
 - `-b, --bucket` : Bucket name in S3 where the zip file exists
 - `-f, --file` : Filename (including the .zip extension) of the archive that will be decompressed
@@ -33,10 +32,13 @@ Run the decompression for the file in the specified bucket:
 var s = new s3Unzip({
     bucket: "test-bucket-in-s3",
     file: "Companies.zip"
+  }, function(err, success){
+    if (err) console.log(err);
+    else console.log(success);
   });
 ~~~~
 
-#### Options ####
+#### Required Options ####
 
 Same as command line options above:
 - bucket
@@ -54,7 +56,9 @@ Create an AWS Lambda function, name it, and zip all files from this package to u
 - Role: **(create a custom role with Full S3 Access)**
 
 ##### Advanced #####
-- Memory: **at least 512MB for a 20MB zip file**
+
+For a 20MB zip file:
+- Memory: **at least 512MB**
 - Timeout: **at least 30 sec**
 
 #### Test Options ####
