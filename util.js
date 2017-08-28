@@ -100,7 +100,7 @@ var decompress = function(/*String*/command, /*Function*/ cb) {
 
                 if (err3) {
                   if (cb) cb(new Error("Upload Error: "+err3.message));
-                  else console.log(err3.message);
+                  else console.log("Upload Error: "+err3.message);
                   fs.unlinkSync("/tmp/"+tmpZipFilename+".zip");
                   process.exit(1);
                 }
@@ -118,8 +118,8 @@ var decompress = function(/*String*/command, /*Function*/ cb) {
                   //delete the zip file up on S3
                   s3.deleteObject({Bucket: command.bucket, Key: command.file}, function(err4, data4) {
                     if (err4) {
-                      if (cb) cb(new Error(err4.message));
-                      else console.log(err4.message);
+                      if (cb) cb(new Error("Delete Error: "+err4.message));
+                      else console.log("Delete Error: "+err4.message);
                       process.exit(1);
                     }
                     else {
