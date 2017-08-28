@@ -1,6 +1,6 @@
 {
   "name": "s3-unzip",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Utility for unzipping a compressed (application/zip) file from a S3 bucket's root directory back to the same bucket.",
   "main": "s3-unzip.js",
   "bin": {
