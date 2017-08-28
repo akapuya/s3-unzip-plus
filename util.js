@@ -55,7 +55,7 @@ var decompress = function(/*String*/command, /*Function*/ cb) {
           Key: command.file
         }, function(err2, data2) {
           if (err2) {
-           	if (cb) cb(new Error("File Error: "+err2.message));
+           	if (cb) cb(new Error("File Error: "+err2));
             else console.log("File Error: "+err2);
             process.exit(1);
           }
@@ -99,7 +99,7 @@ var decompress = function(/*String*/command, /*Function*/ cb) {
                 counter++;
 
                 if (err3) {
-                  if (cb) cb(new Error(err3));
+                  if (cb) cb(new Error("Upload Error: "+err3));
                   else console.log(err3);
                   fs.unlinkSync("/tmp/"+tmpZipFilename+".zip");
                   process.exit(1);
