@@ -31,7 +31,8 @@ var md5 = require("md5");
 var decompress = function(/*String*/command, /*Function*/ cb) {
 
   if (!command.bucket || !command.file) {
-    console.log("Error: missing either bucket name or full filename!");
+    if (cb) cb(new Error("Error: missing either bucket name or full filename!"));
+    else console.log("Error: missing either bucket name or full filename!");
     process.exit(1);
   }
 
@@ -45,7 +46,7 @@ var decompress = function(/*String*/command, /*Function*/ cb) {
     }, function(err1, data1) {
       if (data1) {
         //TODO: if called via command line, ask here to overwrite the data and prompt for response
-        console.log("Folder '"+foldername+"' already exists!");
+        //console.log("Folder '"+foldername+"' already exists!");
       }
 
       s3.getObject(
@@ -54,16 +55,18 @@ var decompress = function(/*String*/command, /*Function*/ cb) {
           Key: command.file
         }, function(err2, data2) {
           if (err2) {
-           	cb(new Error("File Error: "+err2.message));
-           	process.exit(1);
+           	if (cb) cb(new Error("File Error: "+err2.message));
+            else console.log("File Error: "+err2);
+            process.exit(1);
           }
           else {
-           	console.log("Zip file '"+command.file+"' found in S3 bucket!");
+           	//console.log("Zip file '"+command.file+"' found in S3 bucket!");
 
             //check that file in that location is a zip content type, otherwise throw error and exit
            	if (data2.ContentType !== "application/zip") {
-           		cb(new Error("Error: file is not of type zip. Please select a valid file (filename.zip)."));
-           		process.exit(1);
+           		if (cb) cb(new Error("Error: file is not of type zip. Please select a valid file (filename.zip)."));
+              else console.log("Error: file is not of type zip. Please select a valid file (filename.zip).");
+              process.exit(1);
            	}
     /*
             //check that file is < 20mb, otherwise throw error and exit
@@ -83,7 +86,9 @@ var decompress = function(/*String*/command, /*Function*/ cb) {
 
             //if no files found in the zip
             if (zipEntryCount === 0){
-              cb(new Error("Error: the zip file was empty!"));
+              if (cb) cb(new Error("Error: the zip file was empty!"));
+              else console.log("Error: the zip file was empty!");
+              fs.unlinkSync("/tmp/"+tmpZipFilename+".zip");
               process.exit(1);
             }
 
@@ -94,23 +99,34 @@ var decompress = function(/*String*/command, /*Function*/ cb) {
                 counter++;
 
                 if (err3) {
-                  cb(new Error(err3));
+                  if (cb) cb(new Error(err3));
+                  else console.log(err3);
+                  fs.unlinkSync("/tmp/"+tmpZipFilename+".zip");
                   process.exit(1);
                 }
-                else console.log("File decompressed to S3: "+data3.Location);
+                else {
+                  //console.log("File decompressed to S3: "+data3.Location);
+                }
 
                 //if all files are unzipped...
                 if (zipEntryCount === counter){
                   //delete the tmp (local) zip file
                   fs.unlinkSync("/tmp/"+tmpZipFilename+".zip");
-                  console.log("Local temp zip file deleted.");
+
+                  //console.log("Local temp zip file deleted.");
+
                   //delete the zip file up on S3
                   s3.deleteObject({Bucket: command.bucket, Key: command.file}, function(err4, data4) {
                     if (err4) {
-                      cb(new Error(err4, err4.stack));
+                      if (cb) cb(new Error(err4));
+                      else console.log(err4);
                       process.exit(1);
                     }
-                    else console.log("S3 file '"+command.file+"' deleted.");
+                    else {
+                      //console.log("S3 file '"+command.file+"' deleted.");
+                    }
+
+                    //WE GOT TO THE END
                     cb(null, "Success!");
                   });
                 }
