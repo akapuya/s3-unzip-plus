@@ -27,6 +27,7 @@ var AdmZip = require("adm-zip");
 var fs = require("fs");
 var dateTime = require("date-time");
 var md5 = require("md5");
+var mime = require('mime-types');
 
 var decompress = function(/*String*/command, /*Function*/ cb) {
 
@@ -62,16 +63,16 @@ var decompress = function(/*String*/command, /*Function*/ cb) {
           else {
            	if (command.verbose) console.log("Zip file '"+command.file+"' found in S3 bucket!");
 
+            //write the zip file locally in a tmp dir
+            var tmpZipFilename = md5(dateTime({showMilliseconds: true}));
+            fs.writeFileSync("/tmp/"+tmpZipFilename+".zip", data.Body);
+
             //check that file in that location is a zip content type, otherwise throw error and exit
-           	if (data.ContentType !== "application/zip") {
+           	if (mime.lookup("/tmp/"+tmpZipFilename+".zip") !== "application/zip") {
            		if (cb) cb(new Error("Error: file is not of type zip. Please select a valid file (filename.zip)."));
               else console.error("Error: file is not of type zip. Please select a valid file (filename.zip).");
               return;
            	}
-
-            //write the zip file locally in a tmp dir
-            var tmpZipFilename = md5(dateTime({showMilliseconds: true}));
-            fs.writeFileSync("/tmp/"+tmpZipFilename+".zip", data.Body);
 
             //find all files in the zip and the count of them
             var zip = new AdmZip("/tmp/"+tmpZipFilename+".zip");

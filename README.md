@@ -23,7 +23,7 @@ A simple library to unzip an archive file in a S3 bucket to its root folder.
 #### Options ####
 
 - `-d, --delete-on-success` : Delete the zip file once the decompression has finished
-- `-v, --verbose` : Show the console log files during runtime
+- `-v, --verbose` : Show the console log messages during runtime
 
 #### Example ####
 
