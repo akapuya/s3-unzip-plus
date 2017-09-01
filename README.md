@@ -9,7 +9,7 @@ A simple library to unzip an archive file in a S3 bucket to its root folder.
 
 ### Restrictions ###
 
-- The module only supports the input zip file MIME type of 'application/zip'. Please set the Content-Type in S3 for the file prior to running this library.
+- The module only supports the input zip file MIME type of 'application/zip'.
 
 ### Command Line Usage ###
 
@@ -53,7 +53,7 @@ var s = new s3Unzip({
 
 ### AWS Lambda Usage ###
 
-Create an AWS Lambda function, name it, and zip all files from this package to upload the code.
+Create an AWS Lambda function, name it, and zip all files from this package to upload the code (including node_modules).
 
 #### Configuration ####
 

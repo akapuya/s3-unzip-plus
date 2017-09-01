@@ -71,6 +71,7 @@ var decompress = function(/*String*/command, /*Function*/ cb) {
            	if (mime.lookup("/tmp/"+tmpZipFilename+".zip") !== "application/zip") {
            		if (cb) cb(new Error("Error: file is not of type zip. Please select a valid file (filename.zip)."));
               else console.error("Error: file is not of type zip. Please select a valid file (filename.zip).");
+              fs.unlinkSync("/tmp/"+tmpZipFilename+".zip");
               return;
            	}
 
