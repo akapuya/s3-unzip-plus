@@ -30,10 +30,10 @@ var md5 = require("md5");
 
 var decompress = function(/*String*/command, /*Function*/ cb) {
 
-  if (!command.bucket || !command.file) {
+  if (!command.bucket || !command.file) { //bucket and file are required
     if (cb) cb(new Error("Error: missing either bucket name or full filename!"));
-    else console.log("Error: missing either bucket name or full filename!");
-    process.exit(1);
+    else console.error("Error: missing either bucket name or full filename!");
+    return;
   }
 
   var filenamePartsArray = command.file.split(".");
@@ -43,8 +43,8 @@ var decompress = function(/*String*/command, /*Function*/ cb) {
     {
       Bucket: command.bucket,
       Key: foldername+"/"
-    }, function(err1, data1) {
-      if (data1) {
+    }, function(err, data) {
+      if (data) {
         //TODO: if called via command line, ask here to overwrite the data and prompt for response
         //console.log("Folder '"+foldername+"' already exists!");
       }
@@ -53,31 +53,25 @@ var decompress = function(/*String*/command, /*Function*/ cb) {
         {
           Bucket: command.bucket,
           Key: command.file
-        }, function(err2, data2) {
-          if (err2) {
-           	if (cb) cb(new Error("File Error: "+err2.message));
-            else console.log("File Error: "+err2.message);
-            process.exit(1);
+        }, function(err, data) {
+          if (err) {
+           	if (cb) cb(new Error("File Error: "+err.message));
+            else console.error("File Error: "+err.message);
+            return;
           }
           else {
-           	//console.log("Zip file '"+command.file+"' found in S3 bucket!");
+           	if (command.verbose) console.log("Zip file '"+command.file+"' found in S3 bucket!");
 
             //check that file in that location is a zip content type, otherwise throw error and exit
-           	if (data2.ContentType !== "application/zip") {
+           	if (data.ContentType !== "application/zip") {
            		if (cb) cb(new Error("Error: file is not of type zip. Please select a valid file (filename.zip)."));
-              else console.log("Error: file is not of type zip. Please select a valid file (filename.zip).");
-              process.exit(1);
+              else console.error("Error: file is not of type zip. Please select a valid file (filename.zip).");
+              return;
            	}
-    /*
-            //check that file is < 20mb, otherwise throw error and exit
-           	if (data2.ContentLength > 20971520) {
-           		console.log("Error: the file selected is > 20 MB. Please select a valid file that is < 20 MB.");
-           		process.exit(1);
-            }
-    */
+
             //write the zip file locally in a tmp dir
-            var tmpZipFilename = md5(dateTime());
-            fs.writeFileSync("/tmp/"+tmpZipFilename+".zip", data2.Body);
+            var tmpZipFilename = md5(dateTime({showMilliseconds: true}));
+            fs.writeFileSync("/tmp/"+tmpZipFilename+".zip", data.Body);
 
             //find all files in the zip and the count of them
             var zip = new AdmZip("/tmp/"+tmpZipFilename+".zip");
@@ -87,50 +81,52 @@ var decompress = function(/*String*/command, /*Function*/ cb) {
             //if no files found in the zip
             if (zipEntryCount === 0){
               if (cb) cb(new Error("Error: the zip file was empty!"));
-              else console.log("Error: the zip file was empty!");
+              else console.error("Error: the zip file was empty!");
               fs.unlinkSync("/tmp/"+tmpZipFilename+".zip");
-              process.exit(1);
+              return;
             }
 
             //for each file in the zip, decompress and upload it to S3; once all are uploaded, delete the tmp zip and zip on S3
             var counter = 0;
           	zipEntries.forEach(function(zipEntry) {
-              s3.upload({ Bucket: command.bucket, Key: zipEntry.entryName, Body: zipEntry.getData() }, function(err3, data3) {
+              s3.upload({ Bucket: command.bucket, Key: zipEntry.entryName, Body: zipEntry.getData() }, function(err, data) {
                 counter++;
 
-                if (err3) {
-                  if (cb) cb(new Error("Upload Error: "+err3.message));
-                  else console.log("Upload Error: "+err3.message);
+                if (err) {
+                  if (cb) cb(new Error("Upload Error: "+err.message));
+                  else console.error("Upload Error: "+err.message);
                   fs.unlinkSync("/tmp/"+tmpZipFilename+".zip");
-                  process.exit(1);
+                  continue;
                 }
-                else {
-                  //console.log("File decompressed to S3: "+data3.Location);
-                }
+
+                if (command.verbose) console.log("File decompressed to S3: "+data.Location);
 
                 //if all files are unzipped...
                 if (zipEntryCount === counter){
                   //delete the tmp (local) zip file
                   fs.unlinkSync("/tmp/"+tmpZipFilename+".zip");
 
-                  //console.log("Local temp zip file deleted.");
+                  if (command.verbose) console.log("Local temp zip file deleted.");
 
                   //delete the zip file up on S3
-                  s3.deleteObject({Bucket: command.bucket, Key: command.file}, function(err4, data4) {
-                    if (err4) {
-                      if (cb) cb(new Error("Delete Error: "+err4.message));
-                      else console.log("Delete Error: "+err4.message);
-                      process.exit(1);
-                    }
-                    else {
-                      //console.log("S3 file '"+command.file+"' deleted.");
-                    }
+                  if (command.deleteOnSuccess) {
+                    s3.deleteObject({Bucket: command.bucket, Key: command.file}, function(err, data) {
+                      if (err) {
+                        if (cb) cb(new Error("Delete Error: "+err.message));
+                        else console.error("Delete Error: "+err.message);
+                        return;
+                      }
 
+                      if (command.verbose) console.log("S3 file '"+command.file+"' deleted.");
+
+                      //WE GOT TO THE END
+                      cb(null, "Success!");
+                    });
+                  }else {
                     //WE GOT TO THE END
                     cb(null, "Success!");
-                  });
+                  }
                 }
-
               });
           	});
           }

@@ -25,7 +25,12 @@ var Utils = require("./util");
 
 function s3Unzip(command, cb){
   if (cb === undefined) {cb = function(err, success) {};}
-  Utils.decompress(command, cb);
+  Utils.decompress({
+    bucket: command.args[0],
+    file: command.args[1],
+    deleteOnSuccess: command.deleteOnSuccess,
+    verbose: command.verbose
+  }, cb);
 }
 
 module.exports = s3Unzip;

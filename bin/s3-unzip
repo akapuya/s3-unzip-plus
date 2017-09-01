@@ -30,9 +30,9 @@ command
   .version(pkg.version);
 
 command
-  .usage("<options>")
-  .option("-b --bucket <name>", "S3 bucket name")
-  .option("-f --file <name>", "Filename of the zip file (including extension)")
+  .usage("[options] <S3 bucket name> <filename>")
+  .option("-d --delete-on-success", "Delete the zip file on S3 once the decompression has finished")
+  .option("-v --verbose", "Show all console logs")
   .parse(process.argv);
 
 var s = new s3Unzip(command);
