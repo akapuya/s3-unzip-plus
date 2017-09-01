@@ -96,7 +96,7 @@ var decompress = function(/*String*/command, /*Function*/ cb) {
                   if (cb) cb(new Error("Upload Error: "+err.message));
                   else console.error("Upload Error: "+err.message);
                   fs.unlinkSync("/tmp/"+tmpZipFilename+".zip");
-                  continue;
+                  return;
                 }
 
                 if (command.verbose) console.log("File decompressed to S3: "+data.Location);
