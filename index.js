@@ -48,5 +48,10 @@ module.exports = s3Unzip;
 
 module.exports.handler = function(event, context, callback) {
   if (callback === undefined) {callback = function(err, success) {};}
-  Utils.decompress(event.command, callback);
+  Utils.decompress({
+    bucket: event.Records[0].s3.bucket.name,
+    file: event.Records[0].s3.object.key,
+    deleteOnSuccess: true,
+    verbose: true
+  }, callback);
 };

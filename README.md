@@ -53,7 +53,7 @@ var s = new s3Unzip({
 
 ### AWS Lambda Usage ###
 
-Create an AWS Lambda function, name it, and zip all files from this package to upload the code (including node_modules).
+Create an AWS Lambda function, name it, and zip all files from this package to upload the code (including node_modules). The function defaults to deleting the zip file after it's been decompressed and verbose messages logged to CloudWatch.
 
 #### Configuration ####
 
@@ -73,11 +73,19 @@ For a 20MB zip file:
 Test JSON:
 ~~~~
 {
-    "command":{
-        "bucket": "test-bucket-in-s3",
-        "file": "Companies.zip",
-        "deleteOnSuccess": true,
-        "verbose": false
-    }
+  "event":{
+    "Records": [
+      {
+        "s3": {
+          "bucket": {
+            "name": "test-bucket-in-s3"
+          },
+          "object": {
+            "key": "Companies.zip"
+          }
+        }
+      }
+    ]
+  }
 }
 ~~~~
