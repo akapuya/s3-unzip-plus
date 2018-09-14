@@ -1,6 +1,6 @@
 {
-  "name": "s3-unzip",
-  "version": "0.1.12",
+  "name": "s3-unzip-plus",
+  "version": "0.1.0",
   "description": "Utility for unzipping a compressed (application/zip) file from a S3 bucket's root directory back to the same bucket.",
   "keywords": [
     "s3",
@@ -10,16 +10,16 @@
   ],
   "main": "index.js",
   "bin": {
-    "s3-unzip": "bin/s3-unzip"
+    "s3-unzip-plus": "bin/s3-unzip-plus"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "https://bitbucket.org/copperhill/s3-unzip.git"
+    "url": "https://github.com/akapuya/s3-unzip-plus.git"
   },
-  "author": "Steve Yardumian",
+  "author": "Avi Kapuya",
   "license": "MIT",
   "dependencies": {
     "adm-zip": "^0.4.7",
