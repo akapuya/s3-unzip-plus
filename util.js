@@ -31,8 +31,8 @@ var mime = require('mime-types');
 
 var decompress = function(/*String*/command, /*Function*/ cb) {
 
-  targetBucket = command.targetBucket || command.bucket;
-  targetKey = command.targetKey || '';
+  targetBucket = command.hasOwnProperty('targetBucket') ? command.targetBucket : command.bucket;
+  targetKey = command.hasOwnProperty('targetKey') ? command.targetKey : '';
   if (targetKey.length>0) targetKey +='/';
   if (!command.bucket || !command.file || targetBucket || targetKey) { //bucket and file are required
     if (cb) cb(new Error("Error: missing either bucket name, full filename, targetBucket or targetKey!"));
