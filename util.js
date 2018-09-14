@@ -31,9 +31,12 @@ var mime = require('mime-types');
 
 var decompress = function(/*String*/command, /*Function*/ cb) {
 
-  if (!command.bucket || !command.file) { //bucket and file are required
-    if (cb) cb(new Error("Error: missing either bucket name or full filename!"));
-    else console.error("Error: missing either bucket name or full filename!");
+  targetBucket = command.targetBucket || command.bucket;
+  targetKey = command.targetKey || '';
+  if (targetKey.length>0) targetKey +='/';
+  if (!command.bucket || !command.file || targetBucket || targetKey) { //bucket and file are required
+    if (cb) cb(new Error("Error: missing either bucket name, full filename, targetBucket or targetKey!"));
+    else console.error("Error: missing either bucket name, full filename, targetBucket or targetKey!");
     return;
   }
 
@@ -91,7 +94,7 @@ var decompress = function(/*String*/command, /*Function*/ cb) {
             //for each file in the zip, decompress and upload it to S3; once all are uploaded, delete the tmp zip and zip on S3
             var counter = 0;
           	zipEntries.forEach(function(zipEntry) {
-              s3.upload({ Bucket: command.bucket, Key: zipEntry.entryName, Body: zipEntry.getData() }, function(err, data) {
+              s3.upload({ Bucket: targetBucket, Key: targetKey+zipEntry.entryName, Body: zipEntry.getData() }, function(err, data) {
                 counter++;
 
                 if (err) {
