@@ -1,11 +1,11 @@
-# S3 Unzip #
+# S3 Unzip plus #
 
 A simple library to unzip an archive file in a S3 bucket to its root folder.
 
 ### Install ###
 
-- To include as library: `npm install s3-unzip`
-- To use as a command-line tool: `npm install -g s3-unzip`
+- To include as library: `npm install s3-unzip-plus`
+- To use as a command-line tool: `npm install -g s3-unzip-plus`
 
 ### Restrictions ###
 
@@ -13,7 +13,7 @@ A simple library to unzip an archive file in a S3 bucket to its root folder.
 
 ### Command Line Usage ###
 
-`s3-unzip [-dv] <bucket name> <filename>`
+`s3-unzip-plus [-dv] <bucket name> <filename>`
 
 #### Required ####
 
@@ -22,27 +22,31 @@ A simple library to unzip an archive file in a S3 bucket to its root folder.
 
 #### Options ####
 
+- `<targetBucket>` : the output bucket
+- `<targetKey>` : target folder
 - `-d, --delete-on-success` : Delete the zip file once the decompression has finished
 - `-v, --verbose` : Show the console log messages during runtime
 
 #### Example ####
 
-`s3-unzip -d -v test-bucket-in-s3 Companies.zip`
+`s3-unzip-plus -d -v test-bucket-in-s3 Companies.zip`
 
 ### Library Usage ###
 
 Include like most libraries:
 
-`var s3Unzip = require("s3-unzip");`
+`var s3Unziplus = require("s3-unzip-plus");`
 
 Run the decompression for the file in the specified bucket:
 
 #### Options ####
 
 ~~~~
-var s = new s3Unzip({
+var s = new s3Unziplus({
     bucket: "test-bucket-in-s3",
     file: "Companies.zip",
+    targetBucket: "test-output-bucket",
+    targetKey: "test-folder",
     deleteOnSuccess: true,
     verbose: false
   }, function(err, success){
