@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2017 Steve Yardumian
+Copyright (c) 2018 Avi Kapuya
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,10 +25,12 @@ var Utils = require("./util");
 
 function s3Unzip(command, cb){
   if (cb === undefined) {cb = function(err, success) {};}
-  var vBucket, vFile;
-  if (command.args && command.args.length >= 2) {
+  var vBucket, vFile, vTargetBucket, vTargetFolder;
+  if (command.args && command.args.length >= 4) {
     vBucket = command.args[0];
     vFile = command.args[1];
+    vTargetBucket = command.args[2];
+    vTargetFolder = command.args[3];
   }
   if (command.bucket) {
     vBucket = command.bucket;
@@ -36,9 +38,21 @@ function s3Unzip(command, cb){
   if (command.file) {
     vFile = command.file;
   }
+  if (command.targetBucket) {
+      vTargetBucket = command.targetBucket;
+  } else {
+      vTargetBucket = command.bucket;
+  }
+  if (command.targetFolder) {
+      vTargetFolder = command.targetFolder;
+  } else {
+      vTargetFolder = '';
+  }
   Utils.decompress({
     bucket: vBucket,
     file: vFile,
+    targetBucket: vTargetBucket,
+    targetFolder: vTargetFolder,
     deleteOnSuccess: command.deleteOnSuccess,
     verbose: command.verbose
   }, cb);
