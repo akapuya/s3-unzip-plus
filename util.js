@@ -78,10 +78,15 @@ var decompress = function(/*String*/command, /*Function*/ cb) {
               return;
            	}
 
+           	var zip, zipEntries, zipEntryCount;
             //find all files in the zip and the count of them
-            var zip = new AdmZip("/tmp/"+tmpZipFilename+".zip");
-          	var zipEntries = zip.getEntries();
-            var zipEntryCount = Object.keys(zipEntries).length;
+              try {
+                  zip = new AdmZip("/tmp/" + tmpZipFilename + ".zip");
+                  zipEntries = zip.getEntries();
+                  zipEntryCount = Object.keys(zipEntries).length;
+              } catch (err) {
+           	      cb(err);
+              }
 
             //if no files found in the zip
             if (zipEntryCount === 0){

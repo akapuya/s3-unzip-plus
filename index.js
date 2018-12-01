@@ -23,7 +23,7 @@ SOFTWARE.
 
 var Utils = require("./util");
 
-function s3Unzip(command, cb){
+function s3UnzipPlus(command, cb){
   if (cb === undefined) {cb = function(err, success) {};}
   var vBucket, vFile, vTargetBucket, vTargetFolder;
   if (command.args && command.args.length >= 4) {
@@ -58,7 +58,7 @@ function s3Unzip(command, cb){
   }, cb);
 }
 
-module.exports = s3Unzip;
+module.exports = s3UnzipPlus;
 
 module.exports.handler = function(event, context, callback) {
   if (callback === undefined) {callback = function(err, success) {};}

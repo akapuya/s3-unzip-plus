@@ -23,7 +23,7 @@ SOFTWARE.
 
 var command = require("commander");
 var pkg = require("../package.json");
-var s3Unzip = require("../index.js");
+var s3UnziPlus = require("../index.js");
 
 command
   .description(pkg.description)
@@ -35,4 +35,4 @@ command
   .option("-v --verbose", "Show all console logs")
   .parse(process.argv);
 
-var s = new s3Unzip(command);
+var s = new s3UnziPlus(command);
