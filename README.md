@@ -46,7 +46,7 @@ var s = new s3Unziplus({
     bucket: "test-bucket-in-s3",
     file: "Companies.zip",
     targetBucket: "test-output-bucket",
-    targetKey: "test-folder",
+    targetFolder: "test-folder",
     deleteOnSuccess: true,
     verbose: false
   }, function(err, success){
