@@ -54,6 +54,7 @@ function s3UnzipPlus(command, cb){
     targetBucket: vTargetBucket,
     targetFolder: vTargetFolder,
     deleteOnSuccess: command.deleteOnSuccess,
+    copyMetadata: command.copyMetadata,
     verbose: command.verbose
   }, cb);
 }
@@ -66,6 +67,7 @@ module.exports.handler = function(event, context, callback) {
     bucket: event.Records[0].s3.bucket.name,
     file: event.Records[0].s3.object.key,
     deleteOnSuccess: true,
+    copyMetadata: false,
     verbose: true
   }, callback);
 };

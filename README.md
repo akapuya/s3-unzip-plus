@@ -25,6 +25,7 @@ A simple library to unzip an archive file in a S3 bucket to its root folder.
 - `<targetBucket>` : the output bucket
 - `<targetKey>` : target folder
 - `-d, --delete-on-success` : Delete the zip file once the decompression has finished
+- `-m, --copy-metadata` : Copy S3 metadata from zip file to unzipped files
 - `-v, --verbose` : Show the console log messages during runtime
 
 #### Example ####
@@ -48,6 +49,7 @@ var s = new s3Unziplus({
     targetBucket: "test-output-bucket",
     targetKey: "test-folder",
     deleteOnSuccess: true,
+    copyMetadata: false,
     verbose: false
   }, function(err, success){
     if (err) console.error(err);

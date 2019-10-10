@@ -32,6 +32,7 @@ command
 command
   .usage("[options] <S3 bucket name> <filename>")
   .option("-d --delete-on-success", "Delete the zip file on S3 once the decompression has finished")
+  .option("-m --copy-metadata', 'Copy S3 metadata from zip file to unzipped files")
   .option("-v --verbose", "Show all console logs")
   .parse(process.argv);
 
