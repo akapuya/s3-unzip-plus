@@ -19,34 +19,34 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-"use strict";
+'use strict'
 
-var Utils = require("./util");
+var Utils = require('./util')
 
-function s3UnzipPlus(command, cb){
-  if (cb === undefined) {cb = function(err, success) {};}
-  var vBucket, vFile, vTargetBucket, vTargetFolder;
+function s3UnzipPlus(command, cb) {
+  if (cb === undefined) { cb = function () { } }
+  var vBucket, vFile, vTargetBucket, vTargetFolder
   if (command.args && command.args.length >= 4) {
-    vBucket = command.args[0];
-    vFile = command.args[1];
-    vTargetBucket = command.args[2];
-    vTargetFolder = command.args[3];
+    vBucket = command.args[0]
+    vFile = command.args[1]
+    vTargetBucket = command.args[2]
+    vTargetFolder = command.args[3]
   }
   if (command.bucket) {
-    vBucket = command.bucket;
+    vBucket = command.bucket
   }
   if (command.file) {
-    vFile = command.file;
+    vFile = command.file
   }
   if (command.targetBucket) {
-      vTargetBucket = command.targetBucket;
+    vTargetBucket = command.targetBucket
   } else {
-      vTargetBucket = command.bucket;
+    vTargetBucket = command.bucket
   }
   if (command.targetFolder) {
-      vTargetFolder = command.targetFolder;
+    vTargetFolder = command.targetFolder
   } else {
-      vTargetFolder = '';
+    vTargetFolder = ''
   }
   Utils.decompress({
     bucket: vBucket,
@@ -56,18 +56,17 @@ function s3UnzipPlus(command, cb){
     deleteOnSuccess: command.deleteOnSuccess,
     copyMetadata: command.copyMetadata,
     verbose: command.verbose
-  }, cb);
+  }, cb)
 }
 
-module.exports = s3UnzipPlus;
+module.exports = s3UnzipPlus
 
-module.exports.handler = function(event, context, callback) {
-  if (callback === undefined) {callback = function(err, success) {};}
+module.exports.handler = function (event, context, callback) {
+  if (callback === undefined) { callback = function () { } }
   Utils.decompress({
     bucket: event.Records[0].s3.bucket.name,
     file: event.Records[0].s3.object.key,
     deleteOnSuccess: true,
-    copyMetadata: false,
     verbose: true
-  }, callback);
-};
+  }, callback)
+}
