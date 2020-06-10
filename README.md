@@ -47,6 +47,7 @@ var s = new s3Unziplus({
     file: "Companies.zip",
     targetBucket: "test-output-bucket",
     targetKey: "test-folder",
+    copyMetadata: true,
     deleteOnSuccess: true,
     verbose: false
   }, function(err, success){
